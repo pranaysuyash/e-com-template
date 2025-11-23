@@ -429,3 +429,43 @@ enum AIGenerationType {
   DESCRIPTION_GENERATION
   SEO_OPTIMIZATION
 }
+
+// Subscription Management
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?  @unique
+  stripePriceId        String?
+  stripeCurrentPeriodEnd DateTime?
+
+  plan                 SubscriptionPlan @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+
+  // Usage tracking
+  productsUsed         Int      @default(0)
+  aiGenerationsUsed    Int      @default(0)
+  aiGenerationsLimit   Int      @default(100)
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
